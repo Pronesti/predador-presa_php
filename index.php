@@ -144,6 +144,7 @@ function fase_alimentacion($tablero){
         }
     }
     return $tablero;
+}
 
 function graficarMatriz($tablero){
     $i=0;
