@@ -29,12 +29,12 @@ Acciones:
 
 */
 
-function crearTablero($filas,$columnas){
+function crearTablero($filas,$columnas, $antilopes=array(), $leones=array()){
     $tablero= array();
     foreach (range(0,$filas) as $row) {
-    foreach (range(0,$columnas) as $col) {
-    $tablero[$row][$col] = "M";
-    }
+        foreach (range(0,$columnas) as $col) {
+            $tablero[$row][$col] = "M";
+        }
     }
     $n_fila = $filas;
     $n_col = $columnas;
@@ -42,12 +42,21 @@ function crearTablero($filas,$columnas){
     $i=1;
     while($i < $filas){
         $j=1;
+        //$tablero[$i] = array(); no funciona
         while($j < $columnas){
             $tablero[$i][$j]= " ";
             $j += 1;
         }
         $i += 1;
     }
+
+    foreach($antilopes as $k => $v){
+        $tablero[$v[0]][$v[1]] = "A";
+    }
+    foreach($leones as $k => $v){
+        $tablero[$v[0]][$v[1]] = "L";
+    }
+    //print_r($tablero);
     return $tablero;
 }
 
@@ -223,7 +232,75 @@ function contarAnimales($tablero, $animal){
     return $contador;
 }
 
+function mezclarCeldas($tablero){
+    $n_fila = count($tablero);
+    $n_col = count($tablero[0]);
+    $celdas = array();
+    $i = 1;
+    while($i < $n_fila - 1){
+        $j = 1;
+        while ($j < $n_col - 1){
+            $celdas[] = ([$i, $j]);
+            # Ahora las mezclamos
+            shuffle($celdas);
+            $j +=1;
+        }
+        $i += 1;
+    }
+    return $celdas;
+}
 
+function generarTableroAzar($filas,$columnas,$n_antilopes, $n_leones){
+    $tabAzar = crearTablero($filas, $columnas);
+    $mezcla = mezclarCeldas($tabAzar);
+    $i=0;
+    while($i < $n_antilopes){
+        $posicion = array_pop($mezcla);
+        $tabAzar[$posicion[0]][$posicion[1]] = "A";
+        $i += 1;
+    }
+    $j=0;
+    while($j < $n_leones){
+        $posicion = array_pop($mezcla);
+        $tabAzar[$posicion[0]][$posicion[1]] = "L";
+        $j += 1;
+    }
+    return $tabAzar;
+}
+
+function cuantosDeCada($tablero){
+    return array("A" => contarAnimales($tablero, "A"),"L" => contarAnimales($tablero, "L"));
+}
+
+function probarAlimentacion(){
+    $ali = crearTablero(5, 5, [[1,3],[2,1],[3,1],[3,3]], [[1,2]]);
+    $ali = faseAlimentacion($ali);
+    return $ali;
+}
+
+function ejercicio_12(){
+    $tabHecho = crearTablero(6, 8,[[2,2],[3,3],[4,3]],[[4,5],[2,5]]);
+    graficarMatriz($tabHecho);
+    $tabHecho =evolucionar($tabHecho);
+    graficarMatriz($tabHecho);
+    print_r(contarAnimales($tabHecho, "A"));
+    print_r(cuantosDeCada($tabHecho));
+}
+
+function ejercicio_13(){
+    $tabHecho = crear_tablero(6, 8,[[2,2],[3,3],[4,3]],[[4,5],[2,5]]);
+    graficarMatriz($tabHecho);
+    $tabHecho = evolucionarEnElTiempo($tabHecho, 10);
+    graficarMatriz($tabHecho);
+    #Se extinguieron los Antilopes en el ciclo 9
+}    
+
+function ejercicio_14(){
+    $tab14 = generarTableroAzar(12, 12, 10, 5);
+    graficarMatriz($tab14);
+    $mezcla = mezclarCeldas($tab14);
+    print_r($mezcla);
+}
 
 function graficarMatriz($tablero){
     $i=0;
@@ -244,6 +321,7 @@ function graficarMatriz($tablero){
 
 $miTablero = crearTablero(10,10);
 graficarMatriz($miTablero);
+//print_r(mezclarCeldas($miTablero));
 $miTablero = agregar($miTablero,"L",[1,2]);
 $miTablero = agregar($miTablero,"A",[4,4]);
 $miTablero = agregar($miTablero,"A",[3,2]);
@@ -255,5 +333,9 @@ $miTablero = agregar($miTablero,"A",[3,2]);
  // $miTablero = faseMover($miTablero);
  $miTablero = evolucionarEnElTiempo($miTablero,10);
  graficarMatriz($miTablero);
+ print_r(cuantosDeCada($miTablero));
 
+ graficarMatriz(generarTableroAzar(10,10,5,5));
+
+ graficarMatriz(probarAlimentacion());
 ?>
